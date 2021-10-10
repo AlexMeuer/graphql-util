@@ -14,6 +14,12 @@ type (
 	uuid    string
 	jsonb   map[string]interface{}
 	bigint  int64
+
+	// A GraphQL response that contains only the typename.
+	// Useful for when you don't need any info returned from a mutation.
+	Empty struct {
+		Typename string `graphql:"__typename"`
+	}
 )
 
 // UUID casts a string to a uuid (The Hasura UUID type is lowercase).

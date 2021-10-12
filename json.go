@@ -2,6 +2,7 @@ package gql
 
 import (
 	"encoding/json"
+	"net/http"
 )
 
 type JSONer interface {
@@ -12,8 +13,17 @@ type BinderJSON interface {
 	BindJSON(interface{}) error
 }
 
-func JSON(j JSONer, err Error) {
-	j.JSON(err.Code, err)
+// Calls JSON on the given JSONer, using the Error's code as the code parameter
+// and the Error itself as the body parameter.
+//
+// If the Error has no code, then http.StatusInternalServerError is used instead.
+// (This function was written to support cleaner code when using gin-gonic.)
+func JSON(j JSONer, err *Error) {
+	if err.Code == noErrCode {
+		j.JSON(http.StatusInternalServerError, err)
+	} else {
+		j.JSON(err.Code, err)
+	}
 }
 
 // UnmarshalHasuraAction unmarshals Hasura Action Inputs to the given interface and returns the ID of the user.

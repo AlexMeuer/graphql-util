@@ -1,6 +1,10 @@
 package gql
 
-import "github.com/hasura/go-graphql-client"
+import (
+	"time"
+
+	"github.com/hasura/go-graphql-client"
+)
 
 type (
 	// Vars is shorthand for map[string]interface{}, intended to make
@@ -11,9 +15,11 @@ type (
 	ID      graphql.ID
 	Int     graphql.Int
 	String  graphql.String
+	timestamptz                string
 	uuid    string
 	jsonb   map[string]interface{}
 	bigint  int64
+	smallint                   int16
 
 	// A GraphQL response that contains only the typename.
 	// Useful for when you don't need any info returned from a mutation.
@@ -38,4 +44,16 @@ func JSONB(d map[string]interface{}) jsonb {
 // BigInt casts an int64 to a bigint (The Hasura BigInt type is lowercase).
 func BigInt(n int64) bigint {
 	return bigint(n)
+}
+func BigIntP(n *int64) *bigint {
+	return (*bigint)(n)
+}
+func SmallInt(n int16) smallint {
+	return smallint(n)
+}
+func SmallIntP(n *int16) *smallint {
+	return (*smallint)(n)
+}
+func Timestamp(t time.Time) timestamptz {
+	return timestamptz(t.UTC().Format(time.RFC3339))
 }

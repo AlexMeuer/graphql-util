@@ -2,6 +2,7 @@ package gql
 
 import (
 	"encoding/json"
+	"net/http"
 )
 
 type JSONer interface {
@@ -13,7 +14,11 @@ type BinderJSON interface {
 }
 
 func JSON(j JSONer, err Error) {
-	j.JSON(err.Code, err)
+	if err.Code == noErrCode {
+		j.JSON(http.StatusInternalServerError, err)
+	} else {
+		j.JSON(err.Code, err)
+	}
 }
 
 // UnmarshalHasuraAction unmarshals Hasura Action Inputs to the given interface and returns the ID of the user.

@@ -4,8 +4,16 @@ import (
 	"encoding/json"
 )
 
+type JSONer interface {
+	JSON(code int, body interface{})
+}
+
 type BinderJSON interface {
 	BindJSON(interface{}) error
+}
+
+func JSON(j JSONer, err Error) {
+	j.JSON(err.Code, err)
 }
 
 // UnmarshalHasuraAction unmarshals Hasura Action Inputs to the given interface and returns the ID of the user.

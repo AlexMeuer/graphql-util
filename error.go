@@ -1,11 +1,13 @@
 package gql
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Error is Hasura-compliant error response.
 type Error struct {
 	Message string `json:"message"`
-	Code    string `json:"code,omitempty"`
+	Code    int    `json:"code,omitempty"`
 }
 
 // Err creates a new Error from a string, without a code.
@@ -42,8 +44,8 @@ func (e *Error) Error() string {
 }
 
 func (e *Error) String() string {
-	if e.Code == "" {
+	if e.Code == 0 {
 		return e.Message
 	}
-	return fmt.Sprintf("[%s] %s", e.Code, e.Message)
+	return fmt.Sprintf("[%d] %s", e.Code, e.Message)
 }

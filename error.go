@@ -1,4 +1,4 @@
-package gql
+package hasura
 
 import (
 	"fmt"

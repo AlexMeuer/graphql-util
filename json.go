@@ -1,4 +1,4 @@
-package gql
+package hasura
 
 import (
 	"encoding/json"
@@ -49,11 +49,12 @@ func UnmarshalHasuraAction(b BinderJSON, i interface{}) (string, error) {
 	return body.SessionVars.UserID, err
 }
 
-// UnmarshalHasuraEvent unmarshals a Hasura Event payload into either/both of the given
+// UnmarshalHasuraChangeEvent unmarshals a Hasura Event payload into either/both of the given
 // new/old structs and returns the operation type that caused the event.
 // The BinderJSON "b" argument is used for initial decoding but it not used in conjuction with the interface "i".
 // The reason for this is because this function was originally written for the gin web framework (specifically
-func UnmarshalHasuraEvent(b BinderJSON, n, o interface{}) (op string, err error) {
+// the `context.BindJSON(..)` function.)
+func UnmarshalHasuraChangeEvent(b BinderJSON, n, o interface{}) (op string, err error) {
 	var body struct {
 		Event struct {
 			Op   string `json:"op"`
@@ -63,10 +64,10 @@ func UnmarshalHasuraEvent(b BinderJSON, n, o interface{}) (op string, err error)
 			} `json:"data"`
 		} `json:"event"`
 	}
-	op = body.Event.Op
 	if err = b.BindJSON(&body); err != nil {
 		return
 	}
+	op = body.Event.Op
 	unmarshal := func(j json.RawMessage, i interface{}) error {
 		if i == nil {
 			return nil
@@ -78,4 +79,17 @@ func UnmarshalHasuraEvent(b BinderJSON, n, o interface{}) (op string, err error)
 	}
 	err = unmarshal(body.Event.Data.Old, o)
 	return
+}
+
+// UnmarshalHasuraScheduledEvent unmarshals a Hasura Event payload into the given interface.
+// This is intended for use with cron and one-off scheduled events, NOT for events triggered by
+// changes to the database (use UnmarshalHasuraChangeEvent for that).
+func UnmarshalHasuraScheduledEvent(b BinderJSON, data interface{}) error {
+	var body struct {
+		Payload json.RawMessage `json:"payload"`
+	}
+	if err := b.BindJSON(&body); err != nil {
+		return err
+	}
+	return json.Unmarshal(body.Payload, data)
 }

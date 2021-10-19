@@ -1,4 +1,4 @@
-module github.com/alexmeuer/graphql-util
+module github.com/alexmeuer/hasura-util
 
 go 1.16
 

@@ -1,15 +1,17 @@
 package hasura
 
 import (
+	"encoding/json"
 	"fmt"
+	"strconv"
 )
 
 const noErrCode = 0
 
 // Error is Hasura-compliant error response.
 type Error struct {
-	Message string `json:"message"`
-	Code    int    `json:"code,omitempty"`
+	Message string
+	Code    int
 }
 
 // Shorthand for ErrC(message, 0).
@@ -67,4 +69,14 @@ func (e *Error) String() string {
 		return e.Message
 	}
 	return fmt.Sprintf("[%d] %s", e.Code, e.Message)
+}
+
+func (e *Error) MarshalJSON() ([]byte, error) {
+	// Hasura expects `code` to be a string, and will be unhappy if it's an int,
+	// despite expecting it to be in the range of http response codes.
+	m := map[string]interface{}{
+		"message": e.Message,
+		"code":    strconv.Itoa(e.Code),
+	}
+	return json.Marshal(m)
 }
